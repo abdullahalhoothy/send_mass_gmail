@@ -1,0 +1,8 @@
+Subject: Your Email Subject Here
+
+Body: 
+Your email message goes here.
+You can write multiple lines.
+
+Best regards,
+Your Name
