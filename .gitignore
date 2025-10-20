@@ -205,3 +205,16 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project specific
+# User's actual email lists and content should not be committed
+# users.txt
+# my_emails.txt
+# my_content.txt
+
+# Selenium driver logs
+geckodriver.log
+chromedriver.log
+
+# Temporary test files
+test_*.txt
