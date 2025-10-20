@@ -33,17 +33,16 @@ class GmailMassSender:
         self.attachments = []
         
     def setup_driver(self):
-        """Setup Chrome WebDriver with appropriate options."""
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
+        """Setup Firefox WebDriver with appropriate options."""
+        from selenium.webdriver.firefox.service import Service
+        from webdriver_manager.firefox import GeckoDriverManager
         
-        options = webdriver.ChromeOptions()
-        options.add_argument('--start-maximized')
+        options = webdriver.FirefoxOptions()
         # Keep browser open after script ends (optional)
-        options.add_experimental_option("detach", True)
+        options.set_preference("detach", True)
         
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=options)
+        service = Service(GeckoDriverManager().install())
+        self.driver = webdriver.Firefox(service=service, options=options)
         
     def load_email_list(self):
         """Load email addresses from file."""
