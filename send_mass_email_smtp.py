@@ -153,90 +153,85 @@ def send_bulk_emails(
     # Create secure SSL context
     context = ssl.create_default_context()
 
-    try:
-        # Connect to SMTP server
-        with smtplib.SMTP_SSL(SMTP_SERVER, PORT, context=context) as server:
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            # print("Successfully logged into SMTP server")
-            logger.info("Successfully logged into SMTP server")
+    # Connect to SMTP server
+    with smtplib.SMTP_SSL(SMTP_SERVER, PORT, context=context) as server:
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        # print("Successfully logged into SMTP server")
+        logger.info("Successfully logged into SMTP server")
 
-            # Read contacts and send emails
-            with open(contacts_file, "r", encoding="utf-8") as csvfile:
-                reader = csv.DictReader(csvfile)
-                contacts = list(reader)
+        # Read contacts and send emails
+        with open(contacts_file, "r", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            contacts = list(reader)
 
-                logger.info(f"Sending emails to {len(contacts)} recipients...")
-                # print(f"\nSending emails to {len(contacts)} recipients...")
+            logger.info(f"Sending emails to {len(contacts)} recipients...")
+            # print(f"\nSending emails to {len(contacts)} recipients...")
 
-                delay_interval: int = 0
+            delay_interval: int = 0
 
-                start_time = time.time()
-                for row_count, row in enumerate(contacts, 1):
-                    # Render template with contact data
-                    rendered_content = template.render(**row)
+            start_time = time.time()
+            for row_count, row in enumerate(contacts, 1):
+                # Render template with contact data
+                rendered_content = template.render(**row)
 
-                    # Split into subject and body (first line is subject, rest is body)
-                    lines = rendered_content.strip().split("\n")
-                    subject = lines[0].strip()
-                    body_content = "\n".join(lines[1:]).strip()
+                # Split into subject and body (first line is subject, rest is body)
+                lines = rendered_content.strip().split("\n")
+                subject = lines[0].strip()
+                body_content = "\n".join(lines[1:]).strip()
 
-                    # Create email message
-                    msg = EmailMessage()
-                    msg["Subject"] = subject
-                    msg["From"] = SENDER_EMAIL
-                    msg["To"] = row["email"]
+                # Create email message
+                msg = EmailMessage()
+                msg["Subject"] = subject
+                msg["From"] = SENDER_EMAIL
+                msg["To"] = row["email"]
 
-                    # Determine content type and set accordingly
-                    if (
-                        body_content.lower().strip().startswith("<!doctype html>")
-                        or "<html>" in body_content.lower()
-                    ):
-                        # HTML email
-                        msg.set_content(
-                            "Please view this email in an HTML-compatible email client."
-                        )
-                        msg.add_alternative(body_content, subtype="html")
-                    else:
-                        # Plain text email
-                        msg.set_content(body_content)
+                # Determine content type and set accordingly
+                if (
+                    body_content.lower().strip().startswith("<!doctype html>")
+                    or "<html>" in body_content.lower()
+                ):
+                    # HTML email
+                    msg.set_content(
+                        "Please view this email in an HTML-compatible email client."
+                    )
+                    msg.add_alternative(body_content, subtype="html")
+                else:
+                    # Plain text email
+                    msg.set_content(body_content)
 
-                    # Add attachments if any
-                    if attachment_files:
-                        # print(f"\nEmail {row_count} to {row['email']}:")
-                        logger.info(f"Email {row_count} to {row['email']}:")
-                        for attachment_path in attachment_files:
-                            add_attachment_to_message(msg, attachment_path)
+                # Add attachments if any
+                if attachment_files:
+                    # print(f"\nEmail {row_count} to {row['email']}:")
+                    logger.info(f"Email {row_count} to {row['email']}:")
+                    for attachment_path in attachment_files:
+                        add_attachment_to_message(msg, attachment_path)
 
-                    # Send email
-                    server.send_message(msg)
-                    # print(f"✅ Sent email {row_count} to {row['email']}")
-                    logger.info(f"✅ Sent email {row_count} to {row['email']}")
-                    # print(f"   Subject: {subject}")
-                    logger.info(f"   Subject: {subject}")
-                    if attachment_files:
-                        # print(f"   Attachments: {len(attachment_files)} file(s)")
-                        logger.info(f"   Attachments: {len(attachment_files)} file(s)")
+                # Send email
+                server.send_message(msg)
+                # print(f"✅ Sent email {row_count} to {row['email']}")
+                logger.info(f"✅ Sent email {row_count} to {row['email']}")
+                # print(f"   Subject: {subject}")
+                logger.info(f"   Subject: {subject}")
+                if attachment_files:
+                    # print(f"   Attachments: {len(attachment_files)} file(s)")
+                    logger.info(f"   Attachments: {len(attachment_files)} file(s)")
 
-                    # add small delay between each 10 sends to avoid google to tag your email as spam
-                    # (0.80 * 446) + (((446 - 1) // 5) * 3) # calculate the execution average time.
-                    # 0.80   = average processing time per email
-                    # 446-1  = total emails (excluding last email)
-                    # 5      = delay interval
-                    # 3      = delay time (time sleep)
-                    # result: 623.8s (10.39 min) per batch (446)
+                # add small delay between each 10 sends to avoid google to tag your email as spam
+                # (0.80 * 446) + (((446 - 1) // 5) * 3) # calculate the execution average time.
+                # 0.80   = average processing time per email
+                # 446-1  = total emails (excluding last email)
+                # 5      = delay interval
+                # 3      = delay time (time sleep)
+                # result: 623.8s (10.39 min) per batch (446)
 
-                    if delay_interval < 5:
-                        delay_interval += 1
-                    else:
-                        delay_interval = 0
-                        time.sleep(3)
+                if delay_interval < 5:
+                    delay_interval += 1
+                else:
+                    delay_interval = 0
+                    time.sleep(3)
 
-                elapsed_time = time.time() - start_time
-                logger.info(f"Execution time: {elapsed_time:.6f} seconds")
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        # print(err_msg)
+            elapsed_time = time.time() - start_time
+            logger.info(f"Execution time: {elapsed_time:.6f} seconds")
 
 
 if __name__ == "__main__":
