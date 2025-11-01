@@ -19,6 +19,11 @@ what information do you need from me to be able to provide me with a quotation
 I attached images of the products we want to import into canada
 the products are personal hygiene and household hygiene products
 
+Shipping Details:
+- Port of loading: Sokhna port, Egypt
+- Container type: 20ft container (TEU)
+- Incoterm: FOB (Free on Board)
+
 Additional Information:
 - Estimated container value: $20,000 USD per container
 - Import frequency: 1-2 containers per month
